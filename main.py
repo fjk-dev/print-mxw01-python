@@ -306,13 +306,15 @@ class PrinterApp:
         except Exception as e:
             self.status_var.set(f"Ошибка рендеринга: {e}")
 
-    def _draw_preview(self):
+       def _draw_preview(self):
         if not self.preview_image:
             return
         w = int(self.preview_image.width * self.scale_factor)
         h = int(self.preview_image.height * self.scale_factor)
         resized = self.preview_image.resize((w, h), Image.Resampling.NEAREST)
-        self.preview_tk = ImageTk.BitmapImage(resized, foreground="black", background="white")
+        # Инвертируем для предпросмотра (на светлом фоне должны быть чёрные буквы)
+        inverted = resized.point(lambda x: 1 - x)
+        self.preview_tk = ImageTk.BitmapImage(inverted, foreground="black", background="white")
         self.preview_canvas.delete("all")
         self.preview_canvas.create_image(w//2, h//2, image=self.preview_tk)
         self.preview_canvas.config(scrollregion=(0, 0, w, h))
